@@ -23,7 +23,8 @@ pip install -r requirements.txt
 ```
 
 3. Download and prepare the dataset:
-- run ```bash
+- run 
+```bash
 python build_faiss_index.py
 ```
 
