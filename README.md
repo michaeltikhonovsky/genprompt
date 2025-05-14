@@ -23,9 +23,9 @@ pip install -r requirements.txt
 ```
 
 3. Download and prepare the dataset:
-- Download DiffusionDB-lite from [https://huggingface.co/datasets/poloclub/diffusiondb](https://huggingface.co/datasets/poloclub/diffusiondb)
-- Extract it to a directory
-- Update the `dataset_path` in `train_index.py`
+- run ```bash
+python build_faiss_index.py
+```
 
 4. Create the FAISS index:
 ```bash
