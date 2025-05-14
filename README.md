@@ -59,7 +59,7 @@ Response:
 }
 ```
 
-## Next Steps
+## TODO
 
 1. Download and process the DiffusionDB dataset
 2. Train the FAISS index
