@@ -1,0 +1,7 @@
+.env
+data/
+
+backend/data/
+backend/.env
+
+
