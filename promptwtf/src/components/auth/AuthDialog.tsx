@@ -35,11 +35,11 @@ export function AuthDialog() {
         redirectUrl:
           process.env.NODE_ENV === "development"
             ? `/auth-callback`
-            : "https://prompt.wtf/auth-callback",
+            : "https://www.prompt.wtf/auth-callback",
         redirectUrlComplete:
           process.env.NODE_ENV === "development"
             ? `/auth-callback`
-            : "https://prompt.wtf/auth-callback",
+            : "https://www.prompt.wtf/auth-callback",
       })
       .then((res: any) => {
         console.log(res);
