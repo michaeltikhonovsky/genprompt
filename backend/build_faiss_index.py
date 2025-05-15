@@ -12,7 +12,7 @@ import numpy as np
 import torch
 from transformers import CLIPProcessor, CLIPModel
 import time
-from dotenv import load_dotenv
+from huggingface_hub import HfFolder
 
 # Constants
 PARQUET_PATH = "data/diffusiondb_full/metadata.parquet"
@@ -27,13 +27,39 @@ os.environ["HF_HOME"] = CACHE_DIR
 os.environ["TRANSFORMERS_CACHE"] = os.path.join(CACHE_DIR, "transformers")
 os.environ["HF_DATASETS_CACHE"] = os.path.join(CACHE_DIR, "datasets")
 
-load_dotenv()
-HF_TOKEN = os.getenv("HF_TOKEN")
+# Get token using huggingface_hub's built-in method
+token = HfFolder.get_token()
+if not token:
+    print("\n❌ No valid token found!")
+    print("\nPlease run this command first:")
+    print('huggingface-cli login --token YOUR_TOKEN')
+    raise ValueError("Please log in to Hugging Face first")
 
-if not HF_TOKEN:
-    raise ValueError("Please set the HF_TOKEN environment variable with your Hugging Face token")
+print(f"\nFound token starting with: {token[:4]}...")
 
-HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
+# Set up headers
+HEADERS = {
+    "Authorization": f"Bearer {token}",
+    "user-agent": "huggingface_hub/0.31.2",
+}
+
+# Test the token with a simple API call
+print("\n🔄 Testing HF token...")
+test_url = "https://huggingface.co/api/whoami"
+try:
+    response = requests.get(test_url, headers=HEADERS)
+    if response.status_code == 200:
+        print("✅ Token is valid!")
+        print(f"Logged in as: {response.json().get('name')}")
+    else:
+        print(f"❌ Token test failed with status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        print("\nPlease run this command to log in again:")
+        print('huggingface-cli login --token YOUR_TOKEN')
+        raise ValueError("Invalid token")
+except Exception as e:
+    print(f"❌ Token test failed with error: {str(e)}")
+    raise
 
 # Load CLIP
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
