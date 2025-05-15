@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSignIn, useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import {
@@ -19,6 +19,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { Loader2 } from "lucide-react";
 
 const FormSchema = z.object({
   pin: z.string().min(6, {
@@ -34,6 +35,7 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
   const { signIn } = useSignIn();
   const { user } = useUser();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -56,13 +58,14 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
   }, []);
 
   useEffect(() => {
-    if (pin.length === 6) {
+    if (pin.length === 6 && !isVerifying) {
       form.handleSubmit(onSubmit)();
     }
-  }, [pin]);
+  }, [pin, isVerifying]);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
+      setIsVerifying(true);
       let verificationResult;
 
       if (attempt.status === "needs_first_factor") {
@@ -89,23 +92,27 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
             throw new Error("Missing required user data");
           }
 
-          // Sync user to database
-          await fetch("/api/user", {
-            method: "PUT",
+          // Sync user to database using the sync endpoint
+          const response = await fetch("/api/user/sync", {
+            method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              firstName: undefined,
-              lastName: undefined,
-              email,
+              userId: clerkId,
+              email: email,
             }),
           });
+
+          if (!response.ok) {
+            throw new Error("Failed to sync user data");
+          }
 
           toast.success("You've successfully logged in.");
           window.location.href = "/";
         } catch (err) {
           console.error("Failed to complete verification:", err);
+          // Still redirect even if sync fails, we can try to sync again later
           window.location.href = "/";
         }
       }
@@ -113,7 +120,19 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
       console.error(err);
       toast.error("Invalid code");
       form.setValue("pin", "");
+      setIsVerifying(false);
+      // Re-focus the input after error
+      inputRef.current?.focus();
     }
+  }
+
+  if (isVerifying) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-4">
+        <Loader2 className="h-8 w-8 animate-spin text-white" />
+        <p className="text-white font-mono">Verifying code...</p>
+      </div>
+    );
   }
 
   return (
