@@ -35,11 +35,11 @@ export function AuthDialog() {
         redirectUrl:
           process.env.NODE_ENV === "development"
             ? `/auth-callback`
-            : "https://www.prompt.wtf/auth-callback",
+            : "https://www.promptwtf.app/auth-callback",
         redirectUrlComplete:
           process.env.NODE_ENV === "development"
             ? `/auth-callback`
-            : "https://www.prompt.wtf/auth-callback",
+            : "https://www.promptwtf.app/auth-callback",
       })
       .then((res: any) => {
         console.log(res);
@@ -82,11 +82,12 @@ export function AuthDialog() {
             emailAddress: data.email,
           });
 
-          await signUpAttempt.prepareEmailAddressVerification({
-            strategy: "email_code",
-          });
+          const verificationAttempt =
+            await signUpAttempt.prepareEmailAddressVerification({
+              strategy: "email_code",
+            });
 
-          setActiveAttempt(signUpAttempt);
+          setActiveAttempt(verificationAttempt);
           setPendingVerification(true);
         } else {
           throw err;
@@ -195,6 +196,7 @@ export function AuthDialog() {
                     </FormItem>
                   )}
                 />
+                <div id="clerk-captcha" className="mt-2" />
                 <Button
                   type="submit"
                   className="w-full rounded-none font-mono bg-white hover:bg-white/90 text-black"
