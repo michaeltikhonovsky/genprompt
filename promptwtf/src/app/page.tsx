@@ -107,7 +107,7 @@ export default function Home() {
           <Dialog>
             <DialogTrigger asChild>
               {user ? (
-                <div className="flex items-center gap-2 mt-6">
+                <div className="flex flex-col items-center gap-2 mt-6">
                   <Button
                     variant="ghost"
                     className="text-gray-300 border-white border-1"

@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { useSignIn, useSignUp } from "@clerk/nextjs";
 import { type OAuthStrategy } from "@clerk/types";
@@ -23,7 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import OneTimePassword from "./OneTimePassword";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 
 export function AuthDialog() {
   const { signIn, isLoaded: isSignInLoaded } = useSignIn();
@@ -116,7 +117,11 @@ export function AuthDialog() {
   if (!signIn) return null;
 
   return (
-    <DialogContent className="sm:max-w-md bg-black border-white rounded-none">
+    <DialogContent className="sm:max-w-md bg-black border-white rounded-none max-w-[95%]">
+      <DialogClose className="absolute right-4 top-4 text-white hover:text-white/80">
+        <X className="h-4 w-4" />
+        <span className="sr-only">Close</span>
+      </DialogClose>
       <DialogHeader>
         <DialogTitle className="text-white font-mono">
           JOIN PROMPT.WTF
@@ -126,7 +131,7 @@ export function AuthDialog() {
         <div className="grid gap-3">
           <Button
             variant="outline"
-            className="flex items-center justify-center gap-2 w-full rounded-none border-white text-white hover:bg-white/10 hover:text-whitefont-mono font-mono"
+            className="flex items-center justify-center gap-2 w-full rounded-none border-white text-white hover:bg-white/10 hover:text-whitefont-mono font-mono text-sm"
             onClick={() => signInWith("oauth_google")}
             disabled={loadingProvider !== null}
           >
@@ -163,7 +168,7 @@ export function AuthDialog() {
 
           <Button
             variant="outline"
-            className="flex items-center justify-center gap-2 w-full rounded-none border-white text-white hover:bg-white/10 hover:text-white font-mono"
+            className="flex items-center justify-center gap-2 w-full rounded-none border-white text-white hover:bg-white/10 hover:text-white font-mono text-sm"
             onClick={() => signInWith("oauth_github")}
             disabled={loadingProvider !== null}
           >
@@ -181,7 +186,7 @@ export function AuthDialog() {
             <span className="w-full border-t border-white/30" />
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="bg-black px-2 text-white font-mono">
+            <span className="bg-black px-2 text-white font-mono text-[16px] sm:text-xs whitespace-nowrap">
               OR CONTINUE WITH EMAIL
             </span>
           </div>

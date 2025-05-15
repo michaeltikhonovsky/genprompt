@@ -123,6 +123,8 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
             body: JSON.stringify({
               userId: clerkId,
               email: email,
+              firstName: attempt.firstName || undefined,
+              lastName: attempt.lastName || undefined,
             }),
           });
 
@@ -188,34 +190,39 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
           name="pin"
           render={({ field }) => (
             <FormItem className="flex w-full flex-col items-center justify-center gap-2">
-              <FormLabel className="text-white font-mono">
-                Enter the code sent to your email.
+              <FormLabel className="text-white font-mono text-center">
+                Enter the code sent to your email
+                <br />
+                <br />
+                <span className="text-xs text-white">
+                  If you don't see it, check your spam folder
+                </span>
               </FormLabel>
               <FormControl>
                 <InputOTP maxLength={6} {...field} ref={inputRef}>
                   <InputOTPGroup>
                     <InputOTPSlot
-                      className="h-16 w-16 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-black text-white border-white"
                       index={0}
                     />
                     <InputOTPSlot
-                      className="h-16 w-16 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-black text-white border-white"
                       index={1}
                     />
                     <InputOTPSlot
-                      className="h-16 w-16 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-black text-white border-white"
                       index={2}
                     />
                     <InputOTPSlot
-                      className="h-16 w-16 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-black text-white border-white"
                       index={3}
                     />
                     <InputOTPSlot
-                      className="h-16 w-16 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-black text-white border-white"
                       index={4}
                     />
                     <InputOTPSlot
-                      className="h-16 w-16 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-black text-white border-white"
                       index={5}
                     />
                   </InputOTPGroup>
