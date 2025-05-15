@@ -5,11 +5,16 @@ import { Button } from "@/components/ui/button";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { UserProfileDropdown } from "@/components/auth/UserProfileDropdown";
 import { useUser } from "@clerk/nextjs";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
 export function Navbar() {
   const { user } = useUser();
+  const pathname = usePathname();
+
+  // Hide sign-in button on auth-callback page
+  const isAuthCallbackPage = pathname === "/auth-callback";
 
   return (
     <nav className="border-b border-white/10">
@@ -22,7 +27,7 @@ export function Navbar() {
         <div className="flex items-center space-x-4">
           {user ? (
             <UserProfileDropdown />
-          ) : (
+          ) : !isAuthCallbackPage ? (
             <Dialog>
               <DialogTrigger asChild>
                 <Button
@@ -34,7 +39,7 @@ export function Navbar() {
               </DialogTrigger>
               <AuthDialog />
             </Dialog>
-          )}
+          ) : null}
         </div>
       </div>
     </nav>
