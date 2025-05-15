@@ -20,6 +20,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { syncUser } from "@/lib/user";
 
 const FormSchema = z.object({
   pin: z.string().min(6, {
@@ -80,6 +81,19 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
           if (!clerkId || !email) {
             throw new Error("Missing required user data");
           }
+
+          // Sync user to database
+          await fetch("/api/user", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              firstName: undefined,
+              lastName: undefined,
+              email,
+            }),
+          });
 
           toast.success("You've successfully logged in.");
           window.location.href = "/";

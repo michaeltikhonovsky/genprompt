@@ -7,12 +7,10 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { AuthDialog } from "@/components/auth/AuthDialog";
-import { Toaster } from "sonner";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white font-mono">
-      <Toaster />
       {/* Hero Section */}
       <header className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-3xl mx-auto text-center space-y-6">
