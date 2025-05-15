@@ -3,7 +3,6 @@
 import React, { useEffect } from "react";
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { syncUser } from "@/lib/user";
 
 export default function AuthCallback() {
   const { handleRedirectCallback } = useClerk();
@@ -13,19 +12,25 @@ export default function AuthCallback() {
   useEffect(() => {
     async function processOAuthCallback() {
       try {
-        const result = await handleRedirectCallback({
+        await handleRedirectCallback({
           afterSignInUrl: "/",
           afterSignUpUrl: "/",
         });
 
-        // If we have user data, sync it to our database
+        // If we have user data, sync it to our database through the API
         if (user) {
-          await syncUser(
-            user.id,
-            user.primaryEmailAddress?.emailAddress || "",
-            user.firstName || undefined,
-            user.lastName || undefined
-          );
+          await fetch("/api/user/sync", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: user.id,
+              email: user.primaryEmailAddress?.emailAddress || "",
+              firstName: user.firstName || undefined,
+              lastName: user.lastName || undefined,
+            }),
+          });
         }
 
         // After successful authentication, redirect to home page
