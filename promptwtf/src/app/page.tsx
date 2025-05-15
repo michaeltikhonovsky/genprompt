@@ -18,8 +18,8 @@ export default function Home() {
             [prompt.wtf]
           </h1>
           <p className="text-xl md:text-2xl text-gray-300">
-            Upload any AI-generated image. We'll analyze them and attempt to
-            reveal the settings used to create them.
+            Upload any AI-generated image. We&apos;ll analyze them and attempt
+            to reveal the settings used to create them.
           </p>
           <Separator className="my-8 bg-gray-800" />
           <p className="text-gray-400">
@@ -52,8 +52,8 @@ export default function Home() {
           </div>
 
           <p className="text-gray-300 mb-10 max-w-3xl">
-            Ever wondered how an image was created? Upload it, and we'll help
-            you uncover the potential prompts and settings. Here are some
+            Ever wondered how an image was created? Upload it, and we&apos;ll
+            help you uncover the potential prompts and settings. Here are some
             examples:
           </p>
 

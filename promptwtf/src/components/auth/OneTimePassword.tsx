@@ -6,7 +6,6 @@ import { z } from "zod";
 import { useEffect } from "react";
 import { useSignIn, useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -20,7 +19,6 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { syncUser } from "@/lib/user";
 
 const FormSchema = z.object({
   pin: z.string().min(6, {
