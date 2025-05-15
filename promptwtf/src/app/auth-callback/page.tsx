@@ -20,37 +20,51 @@ export default function AuthCallback() {
         });
 
         // Wait for user data to be loaded
-        if (!isUserLoaded) {
+        if (!isUserLoaded || !user) {
+          console.log("User data not loaded yet, waiting...");
           return;
         }
 
+        console.log("User data loaded:", {
+          id: user.id,
+          email: user.primaryEmailAddress?.emailAddress,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        });
+
         // If we have user data, sync it to our database
-        if (user) {
-          try {
-            const response = await fetch("/api/user/sync", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                userId: user.id,
-                email: user.primaryEmailAddress?.emailAddress || "",
-                firstName: user.firstName || undefined,
-                lastName: user.lastName || undefined,
-              }),
-            });
+        try {
+          const response = await fetch("/api/user/sync", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: user.id,
+              email: user.primaryEmailAddress?.emailAddress || "",
+              firstName: user.firstName || undefined,
+              lastName: user.lastName || undefined,
+            }),
+          });
 
-            if (!response.ok) {
-              throw new Error("Failed to sync user data");
-            }
+          const data = await response.json();
 
-            toast.success("Successfully signed in!");
-          } catch (err) {
-            console.error("Failed to sync user:", err);
-            toast.error(
-              "Failed to sync user data. Please try signing in again."
-            );
+          if (!response.ok) {
+            throw new Error(data.error || "Failed to sync user data");
           }
+
+          console.log("User sync successful:", data);
+          toast.success("Successfully signed in!");
+        } catch (err) {
+          console.error("Failed to sync user:", err);
+          // Log the full error details
+          if (err instanceof Error) {
+            console.error("Error details:", {
+              message: err.message,
+              stack: err.stack,
+            });
+          }
+          toast.error("Failed to sync user data. Please try signing in again.");
         }
 
         // After everything is done, redirect to home page

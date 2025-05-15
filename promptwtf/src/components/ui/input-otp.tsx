@@ -18,6 +18,9 @@ const InputOTP = React.forwardRef<
     )}
     className={cn("disabled:cursor-not-allowed", className)}
     {...props}
+    autoComplete="one-time-code"
+    inputMode="numeric"
+    pattern="[0-9]*"
   />
 ));
 InputOTP.displayName = "InputOTP";
