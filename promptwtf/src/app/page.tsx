@@ -8,6 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUser } from "@clerk/nextjs";
+import { FaXTwitter } from "react-icons/fa6";
+import { FaGithub } from "react-icons/fa";
 
 export default function Home() {
   const { user } = useUser();
@@ -35,7 +37,7 @@ export default function Home() {
             <Button
               size="lg"
               variant="outline"
-              className="group border-gray-700 hover:border-white transition-all duration-300 text-white hover:text-slate-700"
+              className="group font-mono rounded-md border border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white transition-all"
               disabled
             >
               <ArrowUpFromLine className="mr-2 h-5 w-5 text-current group-hover:translate-y-[-2px] transition-transform" />
@@ -63,7 +65,7 @@ export default function Home() {
             {demoItems.map((demo) => (
               <Card
                 key={demo.src}
-                className="bg-black border border-gray-700 overflow-hidden group hover:border-gray-500 transition-all duration-300 w-full max-w-xs mx-auto"
+                className="bg-gradient-to-br from-black to-indigo-950/30 border-2 border-indigo-400/50 rounded-lg overflow-hidden group hover:border-indigo-400 hover:shadow-[0_0_15px_rgba(79,70,229,0.2)] transition-all duration-300 w-full max-w-xs mx-auto"
               >
                 <div className="w-full h-64 relative">
                   {demo.type === "image" ? (
@@ -86,8 +88,8 @@ export default function Home() {
                     ></video>
                   )}
                 </div>
-                <div className="p-3 border-t border-gray-700">
-                  <p className="text-sm text-gray-400">{demo.caption}</p>
+                <div className="p-3 border-t border-indigo-400/30">
+                  <p className="text-sm text-indigo-200">{demo.caption}</p>
                 </div>
               </Card>
             ))}
@@ -108,12 +110,12 @@ export default function Home() {
             <div className="flex flex-col items-center gap-2 mt-6">
               <Button
                 variant="ghost"
-                className="text-gray-300 border-white border-1"
+                className="font-mono rounded-md border border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white transition-all"
                 disabled
               >
                 ✓ You&apos;re on the list
               </Button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-indigo-300/60">
                 We&apos;ll notify you at{" "}
                 {user.primaryEmailAddress?.emailAddress}
               </span>
@@ -123,7 +125,7 @@ export default function Home() {
               <DialogTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="mt-6 text-gray-300 border-white border-1"
+                  className="mt-6 font-mono rounded-md border border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white transition-all"
                 >
                   Notify Me
                 </Button>
@@ -135,8 +137,25 @@ export default function Home() {
       </main>
 
       <footer className="container mx-auto px-4 py-8 text-center text-gray-600 text-sm border-t border-gray-900">
-        <p>
-          © 2025 prompt.wtf — Uncover the secrets behind AI-generated images
+        <p className="flex items-center justify-center gap-2">
+          © 2025 prompt.wtf
+          <span className="mx-2">•</span>
+          <a
+            href="https://twitter.com/promptwtf"
+            className="hover:text-gray-400 transition-colors"
+            aria-label="Twitter"
+          >
+            <FaXTwitter />
+          </a>
+          <a
+            href="https://github.com/michaeltikhonovsky"
+            className="hover:text-gray-400 transition-colors"
+            aria-label="GitHub"
+          >
+            <FaGithub />
+          </a>
+          <span className="mx-2">•</span>
+          Uncover the secrets behind AI-generated images
         </p>
       </footer>
     </div>

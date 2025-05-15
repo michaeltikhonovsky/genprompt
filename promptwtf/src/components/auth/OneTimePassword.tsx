@@ -215,27 +215,27 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
                 <InputOTP maxLength={6} {...field} ref={inputRef}>
                   <InputOTPGroup>
                     <InputOTPSlot
-                      className="h-12 w-12 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-indigo-800 text-white border-white"
                       index={0}
                     />
                     <InputOTPSlot
-                      className="h-12 w-12 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-indigo-800 text-white border-white"
                       index={1}
                     />
                     <InputOTPSlot
-                      className="h-12 w-12 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-indigo-800 text-white border-white"
                       index={2}
                     />
                     <InputOTPSlot
-                      className="h-12 w-12 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-indigo-800 text-white border-white"
                       index={3}
                     />
                     <InputOTPSlot
-                      className="h-12 w-12 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-indigo-800 text-white border-white"
                       index={4}
                     />
                     <InputOTPSlot
-                      className="h-12 w-12 text-lg bg-black text-white border-white"
+                      className="h-12 w-12 text-lg bg-indigo-800 text-white border-white"
                       index={5}
                     />
                   </InputOTPGroup>
