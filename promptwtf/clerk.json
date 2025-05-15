@@ -1,0 +1,7 @@
+{
+  "signUp": {
+    "captcha": {
+      "type": "invisible"
+    }
+  }
+} 
