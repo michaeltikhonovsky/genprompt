@@ -37,7 +37,7 @@ export default function Home() {
             <Button
               size="lg"
               variant="outline"
-              className="group border-gray-700 hover:border-white transition-all duration-300 text-white hover:text-slate-700"
+              className="group font-mono rounded-md border border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white transition-all"
               disabled
             >
               <ArrowUpFromLine className="mr-2 h-5 w-5 text-current group-hover:translate-y-[-2px] transition-transform" />
@@ -110,12 +110,12 @@ export default function Home() {
             <div className="flex flex-col items-center gap-2 mt-6">
               <Button
                 variant="ghost"
-                className="text-gray-300 border-white border-1"
+                className="font-mono rounded-md border border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white transition-all"
                 disabled
               >
                 ✓ You&apos;re on the list
               </Button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-indigo-300/60">
                 We&apos;ll notify you at{" "}
                 {user.primaryEmailAddress?.emailAddress}
               </span>
@@ -125,7 +125,7 @@ export default function Home() {
               <DialogTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="mt-6 text-gray-300 border-white border-1"
+                  className="mt-6 font-mono rounded-md border border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white transition-all"
                 >
                   Notify Me
                 </Button>

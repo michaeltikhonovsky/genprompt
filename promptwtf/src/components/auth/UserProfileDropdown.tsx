@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input, type InputProps } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 
 export function UserProfileDropdown() {
   const { user } = useUser();
@@ -134,24 +134,24 @@ export function UserProfileDropdown() {
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="relative h-10 w-10 rounded-full bg-black border border-white hover:bg-white/10"
+            className="relative h-10 w-10 rounded-full bg-indigo-950 border border-indigo-400 hover:bg-indigo-800"
           >
-            <span className="text-white font-mono">{getInitial()}</span>
+            <span className="text-indigo-200 font-mono">{getInitial()}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="w-56 bg-black border-white text-white font-mono"
+          className="w-56 bg-gradient-to-br from-indigo-950 to-purple-900 border-indigo-400 text-indigo-200 font-mono"
         >
           <DropdownMenuItem
             onClick={() => setIsProfileModalOpen(true)}
-            className="cursor-pointer hover:bg-white/10"
+            className="cursor-pointer hover:bg-indigo-800/60 hover:text-white"
           >
             Edit Profile
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={handleSignOut}
-            className="cursor-pointer hover:bg-white/10"
+            className="cursor-pointer hover:bg-indigo-800/60 hover:text-white"
           >
             Log Out
           </DropdownMenuItem>
@@ -159,50 +159,74 @@ export function UserProfileDropdown() {
       </DropdownMenu>
 
       <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
-        <DialogContent className="bg-black border-white text-white font-mono">
-          <DialogClose className="absolute right-4 top-4 text-white hover:text-white/80">
+        <DialogContent className="bg-gradient-to-br from-indigo-950 to-purple-900 border-2 border-indigo-400 rounded-lg shadow-[0_0_15px_rgba(79,70,229,0.4)] text-indigo-200 font-mono">
+          <DialogClose className="absolute right-4 top-4 text-indigo-200 hover:text-white">
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogClose>
           <DialogHeader>
-            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogTitle className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-purple-200 font-mono text-xl">
+              Edit Profile
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleProfileUpdate} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label
+                htmlFor="firstName"
+                className="text-sm text-indigo-200 font-mono"
+              >
+                FIRST NAME
+              </Label>
               <Input
                 id="firstName"
                 name="firstName"
                 defaultValue={profileData.firstName}
-                className="bg-black border-white text-white"
+                className="bg-indigo-950/60 border border-indigo-400/70 rounded-md px-3 py-2 text-indigo-200 font-mono focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
+              <Label
+                htmlFor="lastName"
+                className="text-sm text-indigo-200 font-mono"
+              >
+                LAST NAME
+              </Label>
               <Input
                 id="lastName"
                 name="lastName"
                 defaultValue={profileData.lastName}
-                className="bg-black border-white text-white"
+                className="bg-indigo-950/60 border border-indigo-400/70 rounded-md px-3 py-2 text-indigo-200 font-mono focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label
+                htmlFor="email"
+                className="text-sm text-indigo-200 font-mono"
+              >
+                EMAIL
+              </Label>
               <Input
                 id="email"
                 name="email"
                 value={user.primaryEmailAddress?.emailAddress || ""}
                 disabled
                 cursorPointerOnDisabled
-                className="bg-black border-white text-white opacity-50"
+                className="bg-indigo-950/60 border border-indigo-400/70 rounded-md px-3 py-2 text-indigo-200/50 font-mono"
               />
             </div>
             <Button
               type="submit"
-              className="w-full bg-white text-black hover:bg-white/90"
+              className="w-full rounded-md font-mono bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-md transition-all hover:shadow-lg"
               disabled={isUpdating}
             >
-              {isUpdating ? "Saving..." : "Save Changes"}
+              {isUpdating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
             </Button>
           </form>
         </DialogContent>
