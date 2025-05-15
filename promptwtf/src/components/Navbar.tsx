@@ -17,7 +17,7 @@ export function Navbar() {
   const isAuthCallbackPage = pathname === "/auth-callback";
 
   return (
-    <nav className="border-b border-white/10">
+    <nav className="border-b border-indigo-400/20">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-end">
           <Link href="/">
@@ -32,7 +32,7 @@ export function Navbar() {
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="text-white border-white hover:bg-white/10 hover:text-white font-mono"
+                  className="font-mono rounded-md border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white transition-all"
                 >
                   Sign In
                 </Button>
