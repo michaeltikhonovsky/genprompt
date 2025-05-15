@@ -72,6 +72,9 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
       setIsVerifying(true);
       let verificationResult;
 
+      console.log("Attempt status:", attempt.status);
+      console.log("Attempt object:", attempt);
+
       if (attempt.status === "needs_first_factor") {
         verificationResult = await attempt.attemptFirstFactor({
           strategy: "email_code",
@@ -83,14 +86,32 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
         });
       }
 
+      console.log("Verification result:", verificationResult);
+
       if (verificationResult?.status === "complete") {
         try {
-          const clerkId =
-            verificationResult.createdUserId || attempt.createdUserId;
-          const email = attempt.emailAddress || attempt.identifier;
+          // For sign-in attempts
+          let clerkId = verificationResult.createdUserId;
+          let email = attempt.emailAddress;
+
+          // For first-time sign-ups
+          if (!clerkId && attempt.status === "needs_first_factor") {
+            clerkId = verificationResult.userId || attempt.createdUserId;
+            email = attempt.identifier;
+          }
+
+          console.log("Extracted data:", { clerkId, email });
 
           if (!clerkId || !email) {
-            throw new Error("Missing required user data");
+            console.error("Missing user data:", {
+              clerkId,
+              email,
+              verificationResult,
+              attempt,
+            });
+            throw new Error(
+              "Missing required user data. Please try signing in again."
+            );
           }
 
           // Sync user to database using the sync endpoint
@@ -119,19 +140,26 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
           }, 1000);
         } catch (err) {
           console.error("Failed to complete verification:", err);
-          toast.error("Failed to complete sign up. Please try again.");
+          toast.error(
+            err instanceof Error
+              ? err.message
+              : "Failed to complete sign up. Please try again."
+          );
           setIsVerifying(false);
           setSubmissionAttempted(false);
           form.setValue("pin", "");
           inputRef.current?.focus();
         }
       } else {
-        throw new Error("Verification incomplete");
+        console.error("Incomplete verification:", verificationResult);
+        throw new Error("Verification incomplete. Please try again.");
       }
     } catch (err: any) {
       console.error("Verification error:", err);
       toast.error(
-        err.errors?.[0]?.message || "Invalid code. Please try again."
+        err.errors?.[0]?.message ||
+          err.message ||
+          "Invalid code. Please try again."
       );
       setIsVerifying(false);
       setSubmissionAttempted(false);
