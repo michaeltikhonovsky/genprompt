@@ -85,12 +85,11 @@ export function AuthDialog() {
             emailAddress: data.email,
           });
 
-          const verificationAttempt =
-            await signUpAttempt.prepareEmailAddressVerification({
-              strategy: "email_code",
-            });
+          await signUpAttempt.prepareEmailAddressVerification({
+            strategy: "email_code",
+          });
 
-          setActiveAttempt(verificationAttempt);
+          setActiveAttempt(signUpAttempt);
           setPendingVerification(true);
         } else {
           throw err;
