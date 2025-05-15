@@ -159,7 +159,7 @@ export function UserProfileDropdown() {
       </DropdownMenu>
 
       <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
-        <DialogContent className="bg-indigo-950/90 border border-indigo-400 rounded-lg text-indigo-200 font-mono">
+        <DialogContent className="bg-indigo-950/40 border border-indigo-400/50 rounded-lg text-indigo-200 font-mono">
           <DialogClose className="absolute right-4 top-4 text-indigo-200 hover:text-white">
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
@@ -216,7 +216,7 @@ export function UserProfileDropdown() {
             </div>
             <Button
               type="submit"
-              className="w-full rounded-md font-mono bg-indigo-800 hover:bg-indigo-700 text-white transition-all"
+              className="w-full rounded-md font-mono bg-indigo-800/70 hover:bg-indigo-700 text-white transition-all"
               disabled={isUpdating}
             >
               {isUpdating ? (

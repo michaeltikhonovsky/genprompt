@@ -117,7 +117,7 @@ export function AuthDialog() {
   if (!signIn) return null;
 
   return (
-    <DialogContent className="sm:max-w-md max-w-[95%] bg-indigo-950/90 border border-indigo-400 rounded-lg text-indigo-200 font-mono">
+    <DialogContent className="sm:max-w-md max-w-[95%] bg-indigo-950/40 border border-indigo-400/50 rounded-lg text-indigo-200 font-mono">
       <DialogClose className="absolute right-4 top-4 text-indigo-200 hover:text-white">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
@@ -186,7 +186,7 @@ export function AuthDialog() {
             <span className="w-full border-t border-indigo-400/30" />
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="bg-indigo-950/90 px-2 text-indigo-200 font-mono text-[16px] sm:text-xs whitespace-nowrap">
+            <span className="bg-indigo-950/90 px-2 text-indigo-200 border-indigo-400/30 border-1 rounded-md font-mono text-[16px] sm:text-xs whitespace-nowrap">
               OR CONTINUE WITH EMAIL
             </span>
           </div>
@@ -224,7 +224,7 @@ export function AuthDialog() {
                 <div id="clerk-captcha" className="mt-2" />
                 <Button
                   type="submit"
-                  className="w-full rounded-md font-mono bg-indigo-800 hover:bg-indigo-700 text-white transition-all"
+                  className="w-full rounded-md font-mono bg-indigo-800/70 hover:bg-indigo-700 text-white transition-all"
                   disabled={isLoading}
                 >
                   {isLoading ? (
