@@ -5,8 +5,8 @@ import { useClerk, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-const MAX_RETRIES = 5;
-const RETRY_DELAY = 1000; // 1 second
+const MAX_RETRIES = 10;
+const RETRY_DELAY = 1500; // 1.5 seconds
 
 export default function AuthCallback() {
   const { handleRedirectCallback } = useClerk();
@@ -16,12 +16,15 @@ export default function AuthCallback() {
   useEffect(() => {
     let retryCount = 0;
     let timeoutId: NodeJS.Timeout;
+    let hasProcessed = false;
 
     async function syncUser() {
       if (!user?.id || !user?.primaryEmailAddress?.emailAddress) {
         console.log("Required user data not available:", {
           id: user?.id,
           email: user?.primaryEmailAddress?.emailAddress,
+          isLoaded: isUserLoaded,
+          userObject: user,
         });
 
         if (retryCount < MAX_RETRIES) {
@@ -35,6 +38,8 @@ export default function AuthCallback() {
 
         throw new Error("Failed to get required user data after retries");
       }
+
+      console.log("Attempting to sync user with ID:", user.id);
 
       const response = await fetch("/api/user/sync", {
         method: "POST",
@@ -52,6 +57,7 @@ export default function AuthCallback() {
       const data = await response.json();
 
       if (!response.ok) {
+        console.error("Sync response error:", response.status, data);
         throw new Error(data.error || "Failed to sync user data");
       }
 
@@ -60,16 +66,27 @@ export default function AuthCallback() {
     }
 
     async function processOAuthCallback() {
+      if (hasProcessed) return;
+
       try {
-        // Handle the OAuth callback first
-        await handleRedirectCallback({
+        hasProcessed = true;
+        // Handle the OAuth callback
+        const redirectResult = await handleRedirectCallback({
           afterSignInUrl: "/",
           afterSignUpUrl: "/",
         });
 
-        // Wait for user data to be loaded
-        if (!isUserLoaded) {
-          console.log("User data not loaded yet, waiting...");
+        console.log("Redirect result:", redirectResult);
+
+        // Add a small delay to ensure Clerk has fully processed the user data
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        // Wait for user data to be loaded before proceeding
+        if (!isUserLoaded || !user) {
+          console.log(
+            "User data not yet loaded, waiting for next render cycle"
+          );
+          hasProcessed = false;
           return;
         }
 
@@ -101,10 +118,16 @@ export default function AuthCallback() {
         console.error("OAuth callback error:", err);
         toast.error("Authentication failed. Please try again.");
         router.push("/");
+        hasProcessed = false;
       }
     }
 
-    processOAuthCallback();
+    // Only run the callback processing if the user data is loaded
+    if (isUserLoaded) {
+      processOAuthCallback();
+    } else {
+      console.log("Waiting for user data to load...");
+    }
 
     // Cleanup timeout on unmount
     return () => {
