@@ -32,57 +32,31 @@ def get_image_embedding(image: Image.Image) -> np.ndarray:
     # Convert to NumPy array for FAISS
     return image_features.cpu().numpy()
 
-def process_dataset(dataset_path, model, processor, batch_size=32):
-    """Process the DiffusionDB dataset and create FAISS index."""
-    embedding_dim = 512  # CLIP ViT-B/32 embedding dimension
-    index = faiss.IndexFlatL2(embedding_dim)
-    
-    metadata = []
-    
-    # Assuming dataset_path contains images and a metadata.jsonl file
-    with open(os.path.join(dataset_path, 'metadata.jsonl'), 'r') as f:
-        for line in tqdm(f, desc="Processing images"):
-            data = json.loads(line)
-            image_path = os.path.join(dataset_path, data['image_path'])
-            
-            try:
-                image = Image.open(image_path).convert('RGB')
-                embedding = get_image_embedding(image)
-                
-                # Add to FAISS index
-                index.add(embedding)
-                
-                # Store metadata
-                metadata.append({
-                    'prompt': data['prompt'],
-                    'model': data.get('model', 'stable-diffusion-v1-5'),
-                    'cfg': data.get('cfg', 7.5),
-                    'steps': data.get('steps', 30)
-                })
-                
-            except Exception as e:
-                print(f"Error processing {image_path}: {str(e)}")
-                continue
-    
-    # Save the index and metadata
-    faiss.write_index(index, 'prompt_index.faiss')
-    with open('prompt_metadata.pkl', 'wb') as f:
-        pickle.dump(metadata, f)
-
 def main():
     print("Loading CLIP model...")
     model, processor = load_clip_model()
     
-    print("Processing dataset...")
-    # Use the data directory by default
-    dataset_path = os.path.join(os.path.dirname(__file__), 'data')
-    if not os.path.exists(dataset_path):
-        print(f"Error: Dataset not found at {dataset_path}")
-        print("Please run download_dataset.py first to download and prepare the dataset.")
+    print("Loading pre-built index...")
+    # Use the data directory from build_faiss_index
+    index_path = os.path.join('data', 'embedded_subset', 'prompt_index.faiss')
+    metadata_path = os.path.join('data', 'embedded_subset', 'prompt_metadata.pkl')
+    
+    if not os.path.exists(index_path) or not os.path.exists(metadata_path):
+        print(f"Error: Index not found at {index_path}")
+        print("Please run build_faiss_index.py first to create the index.")
         return
     
-    process_dataset(dataset_path, model, processor)
-    print("Index creation complete!")
+    # Copy files to the expected location for search.py
+    index = faiss.read_index(index_path)
+    with open(metadata_path, 'rb') as f:
+        metadata = pickle.load(f)
+    
+    # Save to root directory for search.py
+    faiss.write_index(index, 'prompt_index.faiss')
+    with open('prompt_metadata.pkl', 'wb') as f:
+        pickle.dump(metadata, f)
+    
+    print("Index loading and copying complete!")
 
 if __name__ == "__main__":
     main() 
