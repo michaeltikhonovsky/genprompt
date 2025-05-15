@@ -36,6 +36,7 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
   const { user } = useUser();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [submissionAttempted, setSubmissionAttempted] = useState(false);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -58,12 +59,15 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
   }, []);
 
   useEffect(() => {
-    if (pin.length === 6 && !isVerifying) {
+    if (pin.length === 6 && !isVerifying && !submissionAttempted) {
+      setSubmissionAttempted(true);
       form.handleSubmit(onSubmit)();
     }
-  }, [pin, isVerifying]);
+  }, [pin, isVerifying, submissionAttempted]);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    if (isVerifying) return; // Prevent multiple submissions
+
     try {
       setIsVerifying(true);
       let verificationResult;
@@ -81,9 +85,6 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
 
       if (verificationResult?.status === "complete") {
         try {
-          console.log("Verification Result:", verificationResult);
-          console.log("Attempt Object:", attempt);
-
           const clerkId =
             verificationResult.createdUserId || attempt.createdUserId;
           const email = attempt.emailAddress || attempt.identifier;
@@ -104,24 +105,37 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
             }),
           });
 
+          const responseData = await response.json();
+
           if (!response.ok) {
-            throw new Error("Failed to sync user data");
+            throw new Error(responseData.error || "Failed to sync user data");
           }
 
-          toast.success("You've successfully logged in.");
-          window.location.href = "/";
+          toast.success("You've successfully logged in!");
+
+          // Use a small delay before redirect to ensure toast is shown
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 1000);
         } catch (err) {
           console.error("Failed to complete verification:", err);
-          // Still redirect even if sync fails, we can try to sync again later
-          window.location.href = "/";
+          toast.error("Failed to complete sign up. Please try again.");
+          setIsVerifying(false);
+          setSubmissionAttempted(false);
+          form.setValue("pin", "");
+          inputRef.current?.focus();
         }
+      } else {
+        throw new Error("Verification incomplete");
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Invalid code");
-      form.setValue("pin", "");
+    } catch (err: any) {
+      console.error("Verification error:", err);
+      toast.error(
+        err.errors?.[0]?.message || "Invalid code. Please try again."
+      );
       setIsVerifying(false);
-      // Re-focus the input after error
+      setSubmissionAttempted(false);
+      form.setValue("pin", "");
       inputRef.current?.focus();
     }
   }
