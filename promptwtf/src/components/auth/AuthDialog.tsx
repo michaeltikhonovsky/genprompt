@@ -117,13 +117,13 @@ export function AuthDialog() {
   if (!signIn) return null;
 
   return (
-    <DialogContent className="sm:max-w-md max-w-[95%] bg-gradient-to-br from-indigo-950 to-purple-900 border-2 border-indigo-400 rounded-lg shadow-[0_0_15px_rgba(79,70,229,0.4)]">
+    <DialogContent className="sm:max-w-md max-w-[95%] bg-indigo-950/90 border border-indigo-400 rounded-lg text-indigo-200 font-mono">
       <DialogClose className="absolute right-4 top-4 text-indigo-200 hover:text-white">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogClose>
       <DialogHeader>
-        <DialogTitle className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-purple-200 font-mono text-xl">
+        <DialogTitle className="text-indigo-200 font-mono text-xl">
           JOIN PROMPT.WTF
         </DialogTitle>
       </DialogHeader>
@@ -186,7 +186,7 @@ export function AuthDialog() {
             <span className="w-full border-t border-indigo-400/30" />
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="bg-gradient-to-r from-indigo-950 to-purple-900 px-2 text-indigo-200 font-mono text-[16px] sm:text-xs whitespace-nowrap">
+            <span className="bg-indigo-950/90 px-2 text-indigo-200 font-mono text-[16px] sm:text-xs whitespace-nowrap">
               OR CONTINUE WITH EMAIL
             </span>
           </div>
@@ -224,7 +224,7 @@ export function AuthDialog() {
                 <div id="clerk-captcha" className="mt-2" />
                 <Button
                   type="submit"
-                  className="w-full rounded-md font-mono bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-md transition-all hover:shadow-lg"
+                  className="w-full rounded-md font-mono bg-indigo-800 hover:bg-indigo-700 text-white transition-all"
                   disabled={isLoading}
                 >
                   {isLoading ? (

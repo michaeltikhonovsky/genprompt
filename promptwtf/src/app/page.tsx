@@ -65,7 +65,7 @@ export default function Home() {
             {demoItems.map((demo) => (
               <Card
                 key={demo.src}
-                className="bg-black border border-gray-700 overflow-hidden group hover:border-gray-500 transition-all duration-300 w-full max-w-xs mx-auto"
+                className="bg-gradient-to-br from-black to-indigo-950/30 border-2 border-indigo-400/50 rounded-lg overflow-hidden group hover:border-indigo-400 hover:shadow-[0_0_15px_rgba(79,70,229,0.2)] transition-all duration-300 w-full max-w-xs mx-auto"
               >
                 <div className="w-full h-64 relative">
                   {demo.type === "image" ? (
@@ -88,8 +88,8 @@ export default function Home() {
                     ></video>
                   )}
                 </div>
-                <div className="p-3 border-t border-gray-700">
-                  <p className="text-sm text-gray-400">{demo.caption}</p>
+                <div className="p-3 border-t border-indigo-400/30">
+                  <p className="text-sm text-indigo-200">{demo.caption}</p>
                 </div>
               </Card>
             ))}
