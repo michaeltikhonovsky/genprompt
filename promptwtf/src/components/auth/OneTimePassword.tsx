@@ -195,7 +195,7 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
                 <br />
                 <br />
                 <span className="text-xs text-white">
-                  If you don't see it, check your spam folder
+                  If you don&apos;t see it, check your spam folder
                 </span>
               </FormLabel>
               <FormControl>
