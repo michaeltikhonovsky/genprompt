@@ -7,8 +7,16 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import { useUser } from "@clerk/nextjs";
+import dynamic from "next/dynamic";
+
+const NotifyMeButton = dynamic(() => import("@/components/NotifyMeButton"), {
+  ssr: false,
+});
 
 export default function Home() {
+  const { user } = useUser();
+
   return (
     <div className="min-h-screen bg-black text-white font-mono">
       <header className="container mx-auto px-4 py-16 md:py-24">
@@ -101,17 +109,7 @@ export default function Home() {
           <p className="text-gray-400 text-sm">
             Be the first to know when we launch. Sign up for updates.
           </p>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                variant="ghost"
-                className="mt-6 text-gray-300 border-white border-1"
-              >
-                Notify Me
-              </Button>
-            </DialogTrigger>
-            <AuthDialog />
-          </Dialog>
+          <NotifyMeButton />
         </section>
       </main>
 
