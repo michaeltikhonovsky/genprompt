@@ -13,11 +13,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input, type InputProps } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { X } from "lucide-react";
 
 export function UserProfileDropdown() {
   const { user } = useUser();
@@ -117,6 +119,10 @@ export function UserProfileDropdown() {
 
       <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
         <DialogContent className="bg-black border-white text-white font-mono">
+          <DialogClose className="absolute right-4 top-4 text-white hover:text-white/80">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
           <DialogHeader>
             <DialogTitle>Edit Profile</DialogTitle>
           </DialogHeader>
