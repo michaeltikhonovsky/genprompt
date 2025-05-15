@@ -115,7 +115,7 @@ export function AuthDialog() {
         <div className="grid gap-3">
           <Button
             variant="outline"
-            className="flex items-center justify-center gap-2 w-full rounded-none border-white text-white hover:bg-white/10 hover:text-whitefont-mono"
+            className="flex items-center justify-center gap-2 w-full rounded-none border-white text-white hover:bg-white/10 hover:text-whitefont-mono font-mono"
             onClick={() => signInWith("oauth_google")}
           >
             <svg
