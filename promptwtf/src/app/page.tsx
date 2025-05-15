@@ -104,33 +104,33 @@ export default function Home() {
           <p className="text-gray-400 text-sm">
             Be the first to know when we launch. Sign up for updates.
           </p>
-          <Dialog>
-            <DialogTrigger asChild>
-              {user ? (
-                <div className="flex flex-col items-center gap-2 mt-6">
-                  <Button
-                    variant="ghost"
-                    className="text-gray-300 border-white border-1"
-                    disabled
-                  >
-                    ✓ You&apos;re on the list
-                  </Button>
-                  <span className="text-sm text-gray-500">
-                    We&apos;ll notify you at{" "}
-                    {user.primaryEmailAddress?.emailAddress}
-                  </span>
-                </div>
-              ) : (
+          {user ? (
+            <div className="flex flex-col items-center gap-2 mt-6">
+              <Button
+                variant="ghost"
+                className="text-gray-300 border-white border-1"
+                disabled
+              >
+                ✓ You&apos;re on the list
+              </Button>
+              <span className="text-sm text-gray-500">
+                We&apos;ll notify you at{" "}
+                {user.primaryEmailAddress?.emailAddress}
+              </span>
+            </div>
+          ) : (
+            <Dialog>
+              <DialogTrigger asChild>
                 <Button
                   variant="ghost"
                   className="mt-6 text-gray-300 border-white border-1"
                 >
                   Notify Me
                 </Button>
-              )}
-            </DialogTrigger>
-            <AuthDialog />
-          </Dialog>
+              </DialogTrigger>
+              <AuthDialog />
+            </Dialog>
+          )}
         </section>
       </main>
 
