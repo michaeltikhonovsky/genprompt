@@ -11,7 +11,6 @@ import { AuthDialog } from "@/components/auth/AuthDialog";
 export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white font-mono">
-      {/* Hero Section */}
       <header className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
