@@ -90,48 +90,61 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
 
       if (verificationResult?.status === "complete") {
         try {
-          // For sign-in attempts
-          let clerkId = verificationResult.createdUserId;
-          let email = attempt.emailAddress;
+          // Extract user data from different possible locations
+          let clerkId;
+          let email;
 
-          // For first-time sign-ups
-          if (!clerkId && attempt.status === "needs_first_factor") {
-            clerkId = verificationResult.userId || attempt.createdUserId;
-            email = attempt.identifier;
+          // For sign-in attempts with existing users
+          if (verificationResult.userId) {
+            clerkId = verificationResult.userId;
+            email = attempt.identifier || attempt.emailAddress;
+          }
+          // For new user sign-ups
+          else if (verificationResult.createdUserId) {
+            clerkId = verificationResult.createdUserId;
+            email = attempt.emailAddress;
+          }
+          // For session-based authentication
+          else if (verificationResult.status === "complete") {
+            // If we can't get the ID but verification is complete, just proceed with login
+            toast.success("You've successfully logged in!");
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 1000);
+            return;
           }
 
           console.log("Extracted data:", { clerkId, email });
 
-          if (!clerkId || !email) {
-            console.error("Missing user data:", {
-              clerkId,
-              email,
-              verificationResult,
-              attempt,
+          // Only try to sync if we have both userId and email
+          if (clerkId && email) {
+            // Sync user to database using the sync endpoint
+            const response = await fetch("/api/user/sync", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                userId: clerkId,
+                email: email,
+                firstName: attempt.firstName || undefined,
+                lastName: attempt.lastName || undefined,
+              }),
             });
-            throw new Error(
-              "Missing required user data. Please try signing in again."
+
+            const responseData = await response.json();
+
+            if (!response.ok) {
+              throw new Error(responseData.error || "Failed to sync user data");
+            }
+          } else {
+            console.warn(
+              "Missing user data for sync, but proceeding with login",
+              {
+                clerkId,
+                email,
+              }
             );
-          }
-
-          // Sync user to database using the sync endpoint
-          const response = await fetch("/api/user/sync", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              userId: clerkId,
-              email: email,
-              firstName: attempt.firstName || undefined,
-              lastName: attempt.lastName || undefined,
-            }),
-          });
-
-          const responseData = await response.json();
-
-          if (!response.ok) {
-            throw new Error(responseData.error || "Failed to sync user data");
           }
 
           toast.success("You've successfully logged in!");
