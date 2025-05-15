@@ -117,13 +117,13 @@ export function AuthDialog() {
   if (!signIn) return null;
 
   return (
-    <DialogContent className="sm:max-w-md bg-black border-white rounded-none max-w-[95%]">
-      <DialogClose className="absolute right-4 top-4 text-white hover:text-white/80">
+    <DialogContent className="sm:max-w-md max-w-[95%] bg-indigo-950/90 border border-indigo-400 rounded-lg text-indigo-200 font-mono">
+      <DialogClose className="absolute right-4 top-4 text-indigo-200 hover:text-white">
         <X className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogClose>
       <DialogHeader>
-        <DialogTitle className="text-white font-mono">
+        <DialogTitle className="text-indigo-200 font-mono text-xl">
           JOIN PROMPT.WTF
         </DialogTitle>
       </DialogHeader>
@@ -131,7 +131,7 @@ export function AuthDialog() {
         <div className="grid gap-3">
           <Button
             variant="outline"
-            className="flex items-center justify-center gap-2 w-full rounded-none border-white text-white hover:bg-white/10 hover:text-whitefont-mono font-mono text-sm"
+            className="flex items-center justify-center gap-2 w-full rounded-md border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white font-mono text-sm transition-all"
             onClick={() => signInWith("oauth_google")}
             disabled={loadingProvider !== null}
           >
@@ -168,7 +168,7 @@ export function AuthDialog() {
 
           <Button
             variant="outline"
-            className="flex items-center justify-center gap-2 w-full rounded-none border-white text-white hover:bg-white/10 hover:text-white font-mono text-sm"
+            className="flex items-center justify-center gap-2 w-full rounded-md border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white font-mono text-sm transition-all"
             onClick={() => signInWith("oauth_github")}
             disabled={loadingProvider !== null}
           >
@@ -183,10 +183,10 @@ export function AuthDialog() {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-white/30" />
+            <span className="w-full border-t border-indigo-400/30" />
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="bg-black px-2 text-white font-mono text-[16px] sm:text-xs whitespace-nowrap">
+            <span className="bg-indigo-950/90 px-2 text-indigo-200 font-mono text-[16px] sm:text-xs whitespace-nowrap">
               OR CONTINUE WITH EMAIL
             </span>
           </div>
@@ -207,24 +207,24 @@ export function AuthDialog() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm text-white font-mono">
+                      <FormLabel className="text-sm text-indigo-200 font-mono">
                         EMAIL
                       </FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           placeholder="user@prompt.wtf"
-                          className="bg-black border border-white rounded-none px-3 py-2 text-white font-mono focus:outline-none focus:ring-1 focus:ring-white"
+                          className="bg-indigo-950/60 border border-indigo-400/70 rounded-md px-3 py-2 text-indigo-200 font-mono focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-pink-300" />
                     </FormItem>
                   )}
                 />
                 <div id="clerk-captcha" className="mt-2" />
                 <Button
                   type="submit"
-                  className="w-full rounded-none font-mono bg-white hover:bg-white/90 text-black"
+                  className="w-full rounded-md font-mono bg-indigo-800 hover:bg-indigo-700 text-white transition-all"
                   disabled={isLoading}
                 >
                   {isLoading ? (
