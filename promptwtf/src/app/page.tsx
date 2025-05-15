@@ -8,11 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUser } from "@clerk/nextjs";
-import dynamic from "next/dynamic";
-
-const NotifyMeButton = dynamic(() => import("@/components/NotifyMeButton"), {
-  ssr: false,
-});
 
 export default function Home() {
   const { user } = useUser();
@@ -109,7 +104,33 @@ export default function Home() {
           <p className="text-gray-400 text-sm">
             Be the first to know when we launch. Sign up for updates.
           </p>
-          <NotifyMeButton />
+          <Dialog>
+            <DialogTrigger asChild>
+              {user ? (
+                <div className="flex items-center gap-2 mt-6">
+                  <Button
+                    variant="ghost"
+                    className="text-gray-300 border-white border-1"
+                    disabled
+                  >
+                    ✓ You&apos;re on the list
+                  </Button>
+                  <span className="text-sm text-gray-500">
+                    We&apos;ll notify you at{" "}
+                    {user.primaryEmailAddress?.emailAddress}
+                  </span>
+                </div>
+              ) : (
+                <Button
+                  variant="ghost"
+                  className="mt-6 text-gray-300 border-white border-1"
+                >
+                  Notify Me
+                </Button>
+              )}
+            </DialogTrigger>
+            <AuthDialog />
+          </Dialog>
         </section>
       </main>
 
