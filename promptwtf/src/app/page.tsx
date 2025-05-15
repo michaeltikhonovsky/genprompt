@@ -1,12 +1,18 @@
+"use client";
+
 import Image from "next/image";
 import { ArrowUpFromLine, Info, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { AuthDialog } from "@/components/auth/AuthDialog";
+import { Toaster } from "sonner";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white font-mono">
+      <Toaster />
       {/* Hero Section */}
       <header className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-3xl mx-auto text-center space-y-6">
@@ -29,7 +35,7 @@ export default function Home() {
             <Button
               size="lg"
               variant="outline"
-              className="group border-gray-700 hover:border-white transition-all duration-300 text-black hover:text-slate-700"
+              className="group border-gray-700 hover:border-white transition-all duration-300 text-white hover:text-slate-700"
               disabled
             >
               <ArrowUpFromLine className="mr-2 h-5 w-5 text-current group-hover:translate-y-[-2px] transition-transform" />
@@ -98,12 +104,17 @@ export default function Home() {
           <p className="text-gray-400 text-sm">
             Be the first to know when we launch. Sign up for updates.
           </p>
-          <Button
-            variant="ghost"
-            className="mt-6 text-gray-300 border-white border-1"
-          >
-            Notify Me
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                className="mt-6 text-gray-300 border-white border-1"
+              >
+                Notify Me
+              </Button>
+            </DialogTrigger>
+            <AuthDialog />
+          </Dialog>
         </section>
       </main>
 
