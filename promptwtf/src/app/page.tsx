@@ -8,6 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUser } from "@clerk/nextjs";
+import { FaXTwitter } from "react-icons/fa6";
+import { FaGithub } from "react-icons/fa";
 
 export default function Home() {
   const { user } = useUser();
@@ -135,8 +137,25 @@ export default function Home() {
       </main>
 
       <footer className="container mx-auto px-4 py-8 text-center text-gray-600 text-sm border-t border-gray-900">
-        <p>
-          © 2025 prompt.wtf — Uncover the secrets behind AI-generated images
+        <p className="flex items-center justify-center gap-2">
+          © 2025 prompt.wtf
+          <span className="mx-2">•</span>
+          <a
+            href="https://twitter.com/promptwtf"
+            className="hover:text-gray-400 transition-colors"
+            aria-label="Twitter"
+          >
+            <FaXTwitter />
+          </a>
+          <a
+            href="https://github.com/michaeltikhonovsky"
+            className="hover:text-gray-400 transition-colors"
+            aria-label="GitHub"
+          >
+            <FaGithub />
+          </a>
+          <span className="mx-2">•</span>
+          Uncover the secrets behind AI-generated images
         </p>
       </footer>
     </div>
