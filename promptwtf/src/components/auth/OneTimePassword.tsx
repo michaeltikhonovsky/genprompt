@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSignIn, useUser } from "@clerk/nextjs";
 import { toast } from "sonner";
 import {
@@ -33,6 +33,7 @@ interface OneTimePasswordProps {
 export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
   const { signIn } = useSignIn();
   const { user } = useUser();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -45,6 +46,14 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
     control: form.control,
     name: "pin",
   });
+
+  useEffect(() => {
+    // Auto focus the input when component mounts
+    const timeoutId = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   useEffect(() => {
     if (pin.length === 6) {
@@ -122,7 +131,7 @@ export default function OneTimePassword({ attempt }: OneTimePasswordProps) {
                 Enter the code sent to your email.
               </FormLabel>
               <FormControl>
-                <InputOTP maxLength={6} {...field}>
+                <InputOTP maxLength={6} {...field} ref={inputRef}>
                   <InputOTPGroup>
                     <InputOTPSlot
                       className="h-16 w-16 text-lg bg-black text-white border-white"

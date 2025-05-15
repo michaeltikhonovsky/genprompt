@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import OneTimePassword from "./OneTimePassword";
+import { Loader2 } from "lucide-react";
 
 export function AuthDialog() {
   const { signIn, isLoaded: isSignInLoaded } = useSignIn();
@@ -63,11 +64,13 @@ export function AuthDialog() {
 
   const [pendingVerification, setPendingVerification] = useState(false);
   const [activeAttempt, setActiveAttempt] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     if (!isSignInLoaded || !isSignUpLoaded) {
       return;
     }
+    setIsLoading(true);
     try {
       try {
         const signInAttempt = await signIn.create({
@@ -100,6 +103,8 @@ export function AuthDialog() {
         variant: "destructive",
       });
       console.error(JSON.stringify(err, null, 2));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -200,8 +205,16 @@ export function AuthDialog() {
                 <Button
                   type="submit"
                   className="w-full rounded-none font-mono bg-white hover:bg-white/90 text-black"
+                  disabled={isLoading}
                 >
-                  CONTINUE
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending code...
+                    </>
+                  ) : (
+                    "Continue"
+                  )}
                 </Button>
               </form>
             </FormProvider>
