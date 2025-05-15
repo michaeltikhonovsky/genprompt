@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import {
   DropdownMenu,
@@ -26,6 +26,42 @@ export function UserProfileDropdown() {
   const { signOut } = useClerk();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [profileData, setProfileData] = useState({
+    firstName: "",
+    lastName: "",
+  });
+
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (isProfileModalOpen && user?.primaryEmailAddress?.emailAddress) {
+      fetchUserProfile(user.primaryEmailAddress.emailAddress);
+    }
+  }, [isProfileModalOpen]);
+
+  const fetchUserProfile = async (email: string) => {
+    try {
+      const response = await fetch(
+        `/api/user?email=${encodeURIComponent(email)}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setProfileData({
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
 
   if (!user) return null;
 
@@ -49,8 +85,8 @@ export function UserProfileDropdown() {
     const lastName = formData.get("lastName") as string;
 
     try {
-      const trimmedFirstName = firstName.trim() || undefined;
-      const trimmedLastName = lastName.trim() || undefined;
+      const trimmedFirstName = firstName.trim();
+      const trimmedLastName = lastName.trim();
       const email = user.primaryEmailAddress?.emailAddress;
 
       if (!email) {
@@ -74,6 +110,11 @@ export function UserProfileDropdown() {
       if (!response.ok) {
         throw new Error(data.error || "Failed to update profile");
       }
+
+      setProfileData({
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
+      });
 
       setIsProfileModalOpen(false);
       toast.success("Profile updated successfully");
@@ -132,7 +173,7 @@ export function UserProfileDropdown() {
               <Input
                 id="firstName"
                 name="firstName"
-                defaultValue={user.firstName || ""}
+                defaultValue={profileData.firstName}
                 className="bg-black border-white text-white"
               />
             </div>
@@ -141,7 +182,7 @@ export function UserProfileDropdown() {
               <Input
                 id="lastName"
                 name="lastName"
-                defaultValue={user.lastName || ""}
+                defaultValue={profileData.lastName}
                 className="bg-black border-white text-white"
               />
             </div>

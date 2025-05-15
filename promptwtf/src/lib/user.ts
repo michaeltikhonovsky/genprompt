@@ -5,8 +5,8 @@ import { eq } from "drizzle-orm";
 export async function syncUser(
   clerkId: string,
   email: string,
-  firstName?: string,
-  lastName?: string
+  firstName?: string | null,
+  lastName?: string | null
 ) {
   try {
     // Check if user exists
@@ -23,8 +23,10 @@ export async function syncUser(
         .update(users)
         .set({
           email,
-          firstName: firstName || existingUser.firstName,
-          lastName: lastName || existingUser.lastName,
+          firstName:
+            firstName === null ? null : firstName || existingUser.firstName,
+          lastName:
+            lastName === null ? null : lastName || existingUser.lastName,
         })
         .where(eq(users.clerkId, clerkId));
 
