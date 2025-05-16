@@ -10,21 +10,23 @@ class ImageSearcher:
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         # Load CLIP model and processor
-        self.model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(self.device)
-        self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        CLIP_MODEL = "openai/clip-vit-large-patch14"
+        print(f"\n🤖 Loading CLIP model: {CLIP_MODEL}")
+        self.model = CLIPModel.from_pretrained(CLIP_MODEL).to(self.device)
+        self.processor = CLIPProcessor.from_pretrained(CLIP_MODEL)
         
         # Get the directory where this script is located
         current_dir = os.path.dirname(os.path.abspath(__file__))
         
-        # Load FAISS index and metadata from the same directory as this script
-        index_path = os.path.join(current_dir, 'prompt_index.faiss')
-        metadata_path = os.path.join(current_dir, 'prompt_metadata.pkl')
+        # Load FAISS index and metadata from the embedded_subset directory
+        index_path = os.path.join(current_dir, 'data', 'embedded_subset', 'prompt_index.faiss')
+        metadata_path = os.path.join(current_dir, 'data', 'embedded_subset', 'prompt_metadata.pkl')
         
         print(f"\nLoading index from: {index_path}")
         print(f"Loading metadata from: {metadata_path}")
         
         self.index = faiss.read_index(index_path)
-        print(f"Index contains {self.index.ntotal} vectors")
+        print(f"Index contains {self.index.ntotal} vectors of dimension {self.index.d}")
         
         with open(metadata_path, 'rb') as f:
             self.metadata = pickle.load(f)
@@ -77,7 +79,7 @@ def main():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     
     # Test with a sample image using absolute path
-    test_image_path = os.path.join(current_dir, "data", "test_imgs", "1.webp")
+    test_image_path = os.path.join(current_dir, "data", "test_imgs", "test-3.jpg")
     try:
         print(f"\nLoading test image from: {test_image_path}")
         query_image = Image.open(test_image_path).convert('RGB')
@@ -87,10 +89,12 @@ def main():
         for i, result in enumerate(results, 1):
             print(f"\nResult {i}:")
             print(f"Similarity Score: {result['similarity_score']:.4f}")
+            print(f"Image: {result['metadata']['image_name']}")
             print(f"Prompt: {result['metadata']['prompt']}")
-            print(f"Model: {result['metadata']['model']}")
+            print(f"Seed: {result['metadata']['seed']}")
             print(f"CFG: {result['metadata']['cfg']}")
             print(f"Steps: {result['metadata']['steps']}")
+            print(f"Sampler: {result['metadata']['sampler']}")
             
     except Exception as e:
         print(f"\nError during search: {str(e)}")
