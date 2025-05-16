@@ -173,7 +173,8 @@ export default function Home() {
               variant="outline"
               className="group font-mono rounded-md border border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white transition-all"
               onClick={handleUploadClick}
-              disabled={uploading || searching}
+              // disabled={uploading || searching}
+              disabled
             >
               {uploading ? (
                 <>
