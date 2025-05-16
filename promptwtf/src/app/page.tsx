@@ -185,6 +185,7 @@ export default function Home() {
 
           {/* Upload Button */}
           <div className="mt-12">
+            <p className="text-gray-400 text-sm mb-4">Coming Soon!</p>
             <input
               type="file"
               ref={fileInputRef}
