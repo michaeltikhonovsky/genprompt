@@ -8,6 +8,7 @@ from transformers import CLIPProcessor, CLIPModel
 import numpy as np
 from datetime import datetime
 import json
+from search import ImageSearcher
 
 app = Flask(__name__)
 CORS(app)
@@ -25,6 +26,14 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14", cache_dir=CACHE_DIR).to(device)
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14", cache_dir=CACHE_DIR)
+
+# Initialize image searcher
+image_searcher = None
+try:
+    image_searcher = ImageSearcher()
+    print("✅ ImageSearcher initialized successfully")
+except Exception as e:
+    print(f"❌ Error initializing ImageSearcher: {str(e)}")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -81,14 +90,90 @@ def upload_image():
         with open(metadata_file, 'w') as f:
             json.dump(metadata, f)
         
+        # Find similar images if searcher is available
+        similar_images = []
+        if image_searcher:
+            try:
+                results = image_searcher.search_similar_images(image, k=5)
+                similar_images = results
+            except Exception as e:
+                print(f"Error during image search: {str(e)}")
+        
         return jsonify({
             'success': True,
             'filename': filename,
-            'embedding': embedding.tolist()
+            'embedding': embedding.tolist(),
+            'similar_images': similar_images
         })
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/search', methods=['POST'])
+def search_similar():
+    if not image_searcher:
+        return jsonify({'error': 'Image search functionality not available'}), 503
+    
+    # Method 1: Get image from URL in JSON
+    if request.json and 'image_url' in request.json:
+        try:
+            import requests
+            response = requests.get(request.json['image_url'])
+            image_data = response.content
+            image = Image.open(io.BytesIO(image_data)).convert('RGB')
+        except Exception as e:
+            return jsonify({'error': f'Failed to load image from URL: {str(e)}'}), 400
+    
+    # Method 2: Accept embedding directly
+    elif request.json and 'embedding' in request.json:
+        try:
+            # Search using the provided embedding
+            embedding = np.array(request.json['embedding'], dtype=np.float32).reshape(1, -1)
+            distances, indices = image_searcher.index.search(embedding, 5)
+            
+            results = []
+            for dist, idx in zip(distances[0], indices[0]):
+                if idx < 0 or idx >= len(image_searcher.metadata):
+                    continue
+                results.append({
+                    'similarity_score': float(1 - dist),
+                    'metadata': image_searcher.metadata[idx]
+                })
+            
+            return jsonify({
+                'success': True,
+                'results': results
+            })
+        except Exception as e:
+            return jsonify({'error': f'Failed to process embedding: {str(e)}'}), 400
+    
+    # Method 3: Get image from uploaded file
+    elif 'image' in request.files:
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+        
+        if not allowed_file(file.filename):
+            return jsonify({'error': 'File type not allowed'}), 400
+        
+        try:
+            image_data = file.read()
+            image = Image.open(io.BytesIO(image_data)).convert('RGB')
+        except Exception as e:
+            return jsonify({'error': f'Failed to process image: {str(e)}'}), 400
+    
+    else:
+        return jsonify({'error': 'No image provided'}), 400
+    
+    # Search for similar images
+    try:
+        results = image_searcher.search_similar_images(image, k=5)
+        return jsonify({
+            'success': True,
+            'results': results
+        })
+    except Exception as e:
+        return jsonify({'error': f'Search failed: {str(e)}'}), 500
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True) 
+    app.run(host='0.0.0.0', port=5001, debug=True) 

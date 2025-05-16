@@ -7,3 +7,6 @@ data/
 backend/data/
 backend/.env
 backend/images/
+
+backend/E:\\ml_cache\\huggingface
+backend/__pycache__
