@@ -1,7 +1,8 @@
 .env
 data/
 
-backend/data/
+backend/data/diffusionsdb_lite
+backend/data/diffusionsdb_full
 backend/.env
-
+backend/data/test_imgs
 backend/images/
