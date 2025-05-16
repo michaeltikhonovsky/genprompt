@@ -1,7 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowUpFromLine, Info, Zap, Upload, Loader2, Eye } from "lucide-react";
+import {
+  ArrowUpFromLine,
+  Info,
+  Zap,
+  Upload,
+  Loader2,
+  Eye,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -14,8 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { useUser } from "@clerk/nextjs";
-import { FaXTwitter } from "react-icons/fa6";
-import { FaGithub } from "react-icons/fa";
+import { FaXTwitter, FaGithub } from "react-icons/fa6";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -26,8 +34,10 @@ export default function Home() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<any>(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [promptMatches, setPromptMatches] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState<string>("");
+  const [showPromptMatches, setShowPromptMatches] = useState(false);
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
@@ -78,8 +88,15 @@ export default function Home() {
       const data = await response.json();
       setAnalysis(data);
 
-      if (data.similar_images && data.similar_images.length > 0) {
-        setSearchResults(data.similar_images);
+      if (
+        data.results &&
+        data.results.image_matches &&
+        data.results.image_matches.length > 0
+      ) {
+        setSearchResults(data.results.image_matches);
+        if (data.results.prompt_matches) {
+          setPromptMatches(data.results.prompt_matches);
+        }
         toast.success("Image uploaded and analyzed successfully!");
       } else if (data.embedding) {
         // Call the search endpoint with the embedding
@@ -101,7 +118,14 @@ export default function Home() {
           if (searchResponse.ok) {
             const searchData = await searchResponse.json();
             if (searchData.success && searchData.results) {
-              setSearchResults(searchData.results);
+              if (Array.isArray(searchData.results)) {
+                setSearchResults(searchData.results);
+              } else if (searchData.results.image_matches) {
+                setSearchResults(searchData.results.image_matches);
+                if (searchData.results.prompt_matches) {
+                  setPromptMatches(searchData.results.prompt_matches);
+                }
+              }
               toast.success("Analysis complete!");
             }
           }
@@ -225,7 +249,7 @@ export default function Home() {
                       >
                         <p className="text-indigo-200 font-bold text-sm md:text-lg mb-2 md:mb-3 pb-2 border-b border-indigo-500/20">
                           Match #{index + 1} -{" "}
-                          {(result.similarity_score * 100).toFixed(1)}% similar
+                          {(result.similarity * 100).toFixed(1)}% similar
                         </p>
 
                         <div className="mb-2 md:mb-3 flex items-center justify-between">
@@ -240,8 +264,7 @@ export default function Home() {
                                 className="text-indigo-300 hover:text-indigo-100 p-1 h-auto hover:bg-indigo-950/20 border border-indigo-500/50"
                                 onClick={() =>
                                   openPromptDialog(
-                                    result.metadata.prompt ||
-                                      "No prompt available"
+                                    result.prompt || "No prompt available"
                                   )
                                 }
                               >
@@ -250,13 +273,12 @@ export default function Home() {
                               </Button>
                             </DialogTrigger>
                             <DialogContent className="bg-black border border-indigo-500/30 text-white max-w-2xl">
-                              <DialogTitle className="text-indigo-300 border-b border-indigo-500/20 pb-2">
+                              <DialogTitle className="text-indigo-300 border-b border-indigo-500/20 pb-2 font-mono">
                                 Prompt Details
                               </DialogTitle>
                               <div className="mt-4 max-h-[60vh] overflow-hidden flex flex-col">
                                 <div className="bg-black/70 p-4 rounded border border-indigo-500/20 font-mono text-sm whitespace-pre-wrap overflow-y-auto">
-                                  {result.metadata.prompt ||
-                                    "No prompt available"}
+                                  {result.prompt || "No prompt available"}
                                 </div>
                               </div>
                               <div className="mt-4 pt-2 border-t border-indigo-500/20 flex justify-end">
@@ -275,30 +297,29 @@ export default function Home() {
                         </div>
 
                         <div className="flex-grow space-y-2 text-sm">
-                          {result.metadata.model &&
-                            result.metadata.model !== "Unknown" && (
-                              <div className="grid grid-cols-[30%_70%]">
-                                <div className="text-gray-400">Model:</div>
-                                <div
-                                  className="text-right text-indigo-100 font-mono truncate"
-                                  title={result.metadata.model}
-                                >
-                                  {result.metadata.model}
-                                </div>
+                          {result.model && result.model !== "Unknown" && (
+                            <div className="grid grid-cols-[30%_70%]">
+                              <div className="text-gray-400">Model:</div>
+                              <div
+                                className="text-right text-indigo-100 font-mono truncate"
+                                title={result.model}
+                              >
+                                {result.model}
                               </div>
-                            )}
+                            </div>
+                          )}
 
                           <div className="grid grid-cols-[30%_70%]">
-                            <div className="text-gray-400">CFG Scale:</div>
+                            <div className="text-gray-400">CFG:</div>
                             <div className="text-right text-indigo-100 font-mono">
-                              {formatValue(result.metadata.cfg)}
+                              {formatValue(result.cfg)}
                             </div>
                           </div>
 
                           <div className="grid grid-cols-[30%_70%]">
                             <div className="text-gray-400">Steps:</div>
                             <div className="text-right text-indigo-100 font-mono">
-                              {formatValue(result.metadata.steps)}
+                              {formatValue(result.steps)}
                             </div>
                           </div>
 
@@ -306,9 +327,9 @@ export default function Home() {
                             <div className="text-gray-400">Sampler:</div>
                             <div
                               className="text-right text-indigo-100 font-mono truncate"
-                              title={result.metadata.sampler || "Unknown"}
+                              title={result.sampler || "Unknown"}
                             >
-                              {result.metadata.sampler || "Unknown"}
+                              {result.sampler || "Unknown"}
                             </div>
                           </div>
 
@@ -316,15 +337,90 @@ export default function Home() {
                             <div className="text-gray-400">Seed:</div>
                             <div
                               className="text-right text-indigo-100 font-mono truncate"
-                              title={formatValue(result.metadata.seed)}
+                              title={formatValue(result.seed)}
                             >
-                              {formatValue(result.metadata.seed)}
+                              {formatValue(result.seed)}
                             </div>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
+
+                  {/* Prompt Matches Section */}
+                  {promptMatches.length > 0 && (
+                    <div className="mt-8">
+                      <p className="text-gray-400 text-sm mb-4">
+                        Need ideas? Prompt recommendations can help recreate a
+                        look close to your image.
+                      </p>
+                      <button
+                        onClick={() => setShowPromptMatches(!showPromptMatches)}
+                        className="flex items-center text-indigo-300 hover:text-indigo-100 mb-4 bg-indigo-950/20 border border-indigo-500/30 px-3 py-2 rounded-md"
+                      >
+                        {showPromptMatches ? (
+                          <ChevronDown className="mr-2 h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="mr-2 h-4 w-4" />
+                        )}
+                        Show Prompt Recommendations
+                      </button>
+
+                      {showPromptMatches && (
+                        <div className="grid grid-cols-1 gap-4 max-w-full mx-auto">
+                          {promptMatches
+                            .slice(0, 3)
+                            .map((match: any, index: number) => (
+                              <div
+                                key={`prompt-${index}`}
+                                className="bg-gradient-to-b from-black/70 to-indigo-950/20 border border-indigo-400/30 rounded-md p-4"
+                              >
+                                <p className="text-indigo-200 font-bold text-sm md:text-base mb-2 pb-2 border-b border-indigo-500/20">
+                                  Prompt Match #{index + 1} -{" "}
+                                  {(match.similarity * 100).toFixed(1)}% similar
+                                </p>
+                                <div className="mb-3">
+                                  <div className="text-gray-400 text-xs uppercase mb-1">
+                                    Prompt:
+                                  </div>
+                                  <div className="bg-black/70 p-3 rounded border border-indigo-500/20 font-mono text-sm whitespace-pre-wrap overflow-y-auto max-h-32">
+                                    {match.prompt || "No prompt available"}
+                                  </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                  <div className="grid grid-cols-[30%_70%]">
+                                    <div className="text-gray-400">CFG:</div>
+                                    <div className=" text-indigo-100 font-mono">
+                                      {formatValue(match.cfg)}
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-[30%_70%]">
+                                    <div className="text-gray-400">Steps:</div>
+                                    <div className=" text-indigo-100 font-mono">
+                                      {formatValue(match.steps)}
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-[30%_70%]">
+                                    <div className="text-gray-400">
+                                      Sampler:
+                                    </div>
+                                    <div className=" text-indigo-100 font-mono truncate">
+                                      {match.sampler || "Unknown"}
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-[30%_70%]">
+                                    <div className="text-gray-400">Seed:</div>
+                                    <div className=" text-indigo-100 font-mono truncate">
+                                      {formatValue(match.seed)}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <p className="text-xs text-gray-500 mt-2">
                     Note: Results are based on pattern matching and may not be
@@ -478,24 +574,24 @@ const demoItems = [
     type: "image",
     src: "/demos/demo2.jpeg",
     alt: "Demo JPEG Image",
-    caption: "DALL-E 3 • Photorealistic • High detail",
+    caption: "Midjourney v6 • detailed painting • k_lms",
   },
   {
     type: "image",
     src: "/demos/demo3.jpg",
     alt: "Demo JPG Image",
-    caption: "Stable Diffusion • Dreamlike • Low CFG",
+    caption: "Stable Diffusion • hyperdetailed • 8K",
   },
   {
     type: "image",
     src: "/demos/demo4.png",
     alt: "Demo PNG Image",
-    caption: "Midjourney v6 • Illustration style • Vibrant",
+    caption: "Midjourney v6 • action shot • Vibrant",
   },
   {
     type: "image",
     src: "/demos/demo5.png",
     alt: "Demo 5 Image",
-    caption: "Stable Diffusion • Anime Style • Dramatic Lighting",
+    caption: "Stable Diffusion • Anime Style • k_euler_ancestral",
   },
 ];
