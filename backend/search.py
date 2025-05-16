@@ -1,106 +1,134 @@
-import torch
+import os
+import pickle
+from typing import List, Dict
+
 import faiss
 import numpy as np
-import pickle
+import torch
 from PIL import Image
-from transformers import CLIPProcessor, CLIPModel
-import os
+from transformers import CLIPModel, CLIPProcessor
+
+# ------------------------------------------------------------------
+#  SEARCHER
+# ------------------------------------------------------------------
 
 class ImageSearcher:
-    def __init__(self):
+    """Search both *image→image* and *image→prompt* FAISS indexes."""
+
+    def __init__(self, top_k: int = 5):
+        self.top_k = top_k
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        # Load CLIP model and processor
-        CLIP_MODEL = "openai/clip-vit-large-patch14"
-        print(f"\n🤖 Loading CLIP model: {CLIP_MODEL}")
-        self.model = CLIPModel.from_pretrained(CLIP_MODEL).to(self.device)
-        self.processor = CLIPProcessor.from_pretrained(CLIP_MODEL)
-        
-        # Get the directory where this script is located
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        
-        # Load FAISS index and metadata from the embedded_subset directory
-        index_path = os.path.join(current_dir, 'data', 'embedded_subset', 'prompt_index.faiss')
-        metadata_path = os.path.join(current_dir, 'data', 'embedded_subset', 'prompt_metadata.pkl')
-        
-        print(f"\nLoading index from: {index_path}")
-        print(f"Loading metadata from: {metadata_path}")
-        
-        self.index = faiss.read_index(index_path)
-        print(f"Index contains {self.index.ntotal} vectors of dimension {self.index.d}")
-        
-        with open(metadata_path, 'rb') as f:
-            self.metadata = pickle.load(f)
-        print(f"Metadata contains {len(self.metadata)} entries")
-    
-    def get_image_embedding(self, image: Image.Image) -> np.ndarray:
-        """Generate CLIP embedding for an input image."""
-        inputs = self.processor(images=image, return_tensors="pt").to(self.device)
-        
+
+        # ---- load CLIP ----
+        self.model_id = "openai/clip-vit-large-patch14"
+        print(f"Loading CLIP backbone {self.model_id} …")
+        self.model: CLIPModel = CLIPModel.from_pretrained(self.model_id).eval().to(self.device)
+        self.processor = CLIPProcessor.from_pretrained(self.model_id)
+
+        # ---- load FAISS indexes ----
+        base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "embedded_subset")
+        img_index_path = os.path.join(base_dir, "image_index.faiss")
+        txt_index_path = os.path.join(base_dir, "prompt_index.faiss")
+        meta_path = os.path.join(base_dir, "prompt_metadata.pkl")
+
+        print("Loading FAISS indexes …")
+        self.image_index = faiss.read_index(img_index_path)
+        self.prompt_index = faiss.read_index(txt_index_path)
+        print(f"   image_index  : {self.image_index.ntotal:,} × {self.image_index.d}")
+        print(f"   prompt_index : {self.prompt_index.ntotal:,} × {self.prompt_index.d}")
+
+        with open(meta_path, "rb") as fp:
+            self.metadata = pickle.load(fp)
+        print(f"Loaded {len(self.metadata):,} metadata rows")
+
+        assert self.image_index.ntotal == len(self.metadata) == self.prompt_index.ntotal, "Index / metadata mismatch!"
+
+    # ------------------------------------------------------------------
+    #  Embeddings helpers
+    # ------------------------------------------------------------------
+
+    def _embed_image(self, pil_img: Image.Image):
+        """Return (stacked1536, final768) numpy arrays."""
+        inputs = self.processor(images=pil_img, return_tensors="pt").to(self.device)
         with torch.no_grad():
-            image_features = self.model.get_image_features(**inputs)
-        
-        # Normalize embedding
-        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
-        return image_features.cpu().numpy()
-    
-    def search_similar_images(self, query_image: Image.Image, k: int = 5) -> list:
-        """
-        Search for k most similar images to the query image.
-        Returns list of dictionaries containing similarity scores and metadata.
-        """
-        # Get embedding for query image
-        query_embedding = self.get_image_embedding(query_image)
-        print(f"\nQuery embedding shape: {query_embedding.shape}")
-        
-        # Search the FAISS index
-        distances, indices = self.index.search(query_embedding, k)
-        print(f"Search returned {len(indices[0])} results")
-        print(f"Indices: {indices[0]}")
-        print(f"Distances: {distances[0]}")
-        
-        # Format results
+            # vision encoder with hidden states
+            vis_out = self.model.vision_model(pixel_values=inputs["pixel_values"], output_hidden_states=True, return_dict=True)
+            cls_final = vis_out.last_hidden_state[:, 0, :]
+            hidden_states = vis_out.hidden_states
+            cls_mid = hidden_states[len(hidden_states)//2][:, 0, :]
+            cls_final = self.model.vision_model.post_layernorm(cls_final)
+            cls_mid = self.model.vision_model.post_layernorm(cls_mid)
+            proj_final = self.model.visual_projection(cls_final)
+            proj_mid = self.model.visual_projection(cls_mid)
+            final_768 = proj_final / proj_final.norm(dim=-1, keepdim=True)
+            stacked_1536 = torch.cat([proj_final, proj_mid], dim=-1)
+            stacked_1536 = stacked_1536 / stacked_1536.norm(dim=-1, keepdim=True)
+        return stacked_1536.cpu().numpy(), final_768.cpu().numpy()
+
+    # ------------------------------------------------------------------
+    #  Public API
+    # ------------------------------------------------------------------
+
+    def search(self, img: Image.Image) -> Dict[str, List[Dict]]:
+        """Return dict with keys 'image_matches' and 'prompt_matches'."""
+        emb_stack, emb_final = self._embed_image(img)
+
+        # ---- image→image ----
+        d_img, i_img = self.image_index.search(emb_stack, self.top_k)
+        img_matches = self._format_results(d_img[0], i_img[0])
+
+        # ---- image→prompt ----
+        d_txt, i_txt = self.prompt_index.search(emb_final, self.top_k)
+        prompt_matches = self._format_results(d_txt[0], i_txt[0])
+
+        return {"image_matches": img_matches, "prompt_matches": prompt_matches}
+
+    # ------------------------------------------------------------------
+
+    def _format_results(self, dots: np.ndarray, idxs: np.ndarray) -> List[Dict]:
+        """Convert FAISS outputs into friendly dicts."""
         results = []
-        for dist, idx in zip(distances[0], indices[0]):
+        for score, idx in zip(dots, idxs):
             if idx < 0 or idx >= len(self.metadata):
-                print(f"Warning: Invalid index {idx} (metadata length: {len(self.metadata)})")
                 continue
+            entry = self.metadata[idx]
             results.append({
-                'similarity_score': float(1 - dist),  # Convert distance to similarity
-                'metadata': self.metadata[idx]
+                "similarity": float(score),  # cosine in [-1,1]
+                "image_name": entry["image_name"],
+                "prompt": entry["prompt"],
+                "seed": entry["seed"],
+                "cfg": entry["cfg"],
+                "steps": entry["steps"],
+                "sampler": entry["sampler"],
             })
-        
         return results
 
-def main():
-    # Example usage
-    searcher = ImageSearcher()
-    
-    # Get the directory where this script is located
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    # Test with a sample image using absolute path
-    test_image_path = os.path.join(current_dir, "data", "test_imgs", "test-3.jpg")
-    try:
-        print(f"\nLoading test image from: {test_image_path}")
-        query_image = Image.open(test_image_path).convert('RGB')
-        results = searcher.search_similar_images(query_image)
-        
-        print("\nSearch Results:")
-        for i, result in enumerate(results, 1):
-            print(f"\nResult {i}:")
-            print(f"Similarity Score: {result['similarity_score']:.4f}")
-            print(f"Image: {result['metadata']['image_name']}")
-            print(f"Prompt: {result['metadata']['prompt']}")
-            print(f"Seed: {result['metadata']['seed']}")
-            print(f"CFG: {result['metadata']['cfg']}")
-            print(f"Steps: {result['metadata']['steps']}")
-            print(f"Sampler: {result['metadata']['sampler']}")
-            
-    except Exception as e:
-        print(f"\nError during search: {str(e)}")
-        print(f"Test image path: {test_image_path}")
-        print(f"Image exists: {os.path.exists(test_image_path)}")
-        raise  # Re-raise the exception to see the full stack trace
+# ------------------------------------------------------------------
+#  DEMO
+# ------------------------------------------------------------------
+
+def _demo():
+    searcher = ImageSearcher(top_k=5)
+    test_img_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "test_imgs", "test-3.jpg")
+    if not os.path.exists(test_img_path):
+        raise FileNotFoundError(test_img_path)
+
+    with Image.open(test_img_path).convert("RGB") as img:
+        res = searcher.search(img)
+
+    # pretty-print with full metadata
+    for kind, arr in res.items():
+        print(f"\n{'='*20} {kind.upper()} {'='*20}")
+        for i, r in enumerate(arr, 1):
+            print(f"\nMatch #{i}  (similarity: {r['similarity']:.3f})")
+            print(f"Image name: {r['image_name']}")
+            print(f"Prompt: {r['prompt']}")
+            print(f"Generation settings:")
+            print(f"  - Seed: {r['seed']}")
+            print(f"  - CFG: {r['cfg']}")
+            print(f"  - Steps: {r['steps']}")
+            print(f"  - Sampler: {r['sampler']}")
+            print('-' * 50)
 
 if __name__ == "__main__":
-    main() 
+    _demo()
