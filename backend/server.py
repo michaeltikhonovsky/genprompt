@@ -17,7 +17,8 @@ CORS(app)
 SCRIPT_DIR   = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(SCRIPT_DIR, "data", "images")
 ALLOWED_EXT   = {"png", "jpg", "jpeg"}
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Folder creation no longer needed since we're not saving files
+# os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 ###############################################################################
 #  Searcher initialisation
@@ -36,7 +37,7 @@ def allowed(fname):
     return "." in fname and fname.rsplit(".", 1)[1].lower() in ALLOWED_EXT
 
 def embed_image(img: Image.Image) -> np.ndarray:
-    """Public wrapper around searcher’s private helper so we can return vectors."""
+    """Public wrapper around searcher's private helper so we can return vectors."""
     stack, _ = image_searcher._embed_image(img)   # stacked 1536-d
     return stack[0]                               # (1,1536) → (1536,)
 
@@ -58,24 +59,26 @@ def upload():
     except Exception as e:
         return jsonify(error=f"Cannot read image: {e}"), 400
 
-    # unique filename
+    # Generate a filename for reference purposes only (not saving to disk)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     fname = f"upload_{ts}.png"
-    path  = os.path.join(UPLOAD_FOLDER, fname)
-    img.save(path)
+    
+    # No longer saving the image to disk
+    # path  = os.path.join(UPLOAD_FOLDER, fname)
+    # img.save(path)
 
-    # metadata stub (optional prompt fields from the form)
-    meta = {
-        fname: {
-            "p" : request.form.get("prompt", ""),
-            "se": request.form.get("seed",  None),
-            "c" : float(request.form.get("cfg",   7.5)),
-            "st": int  (request.form.get("steps", 30)),
-            "sa": request.form.get("sampler", "unknown")
-        }
-    }
-    with open(f"{path}.json", "w", encoding="utf-8") as fp:
-        json.dump(meta, fp)
+    # No longer saving metadata to disk
+    # meta = {
+    #     fname: {
+    #         "p" : request.form.get("prompt", ""),
+    #         "se": request.form.get("seed",  None),
+    #         "c" : float(request.form.get("cfg",   7.5)),
+    #         "st": int  (request.form.get("steps", 30)),
+    #         "sa": request.form.get("sampler", "unknown")
+    #     }
+    # }
+    # with open(f"{path}.json", "w", encoding="utf-8") as fp:
+    #     json.dump(meta, fp)
 
     # run search
     search_res = image_searcher.search(img) if image_searcher else {}
