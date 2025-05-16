@@ -368,6 +368,12 @@ export default function Home() {
 
                       {showPromptMatches && (
                         <div className="grid grid-cols-1 gap-4 max-w-full mx-auto">
+                          <p className="text-white text-sm mb-4">
+                            Wondering why the % seems low? Image-to-prompt
+                            scores top out at ~40% in CLIP&apos;s cross-modal
+                            metric, so even 30% is already a strong semantic
+                            match.
+                          </p>
                           {promptMatches
                             .slice(0, 3)
                             .map((match: any, index: number) => (
