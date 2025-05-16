@@ -198,8 +198,8 @@ export default function Home() {
               variant="outline"
               className="group font-mono rounded-md border border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white transition-all"
               onClick={handleUploadClick}
-              // disabled={uploading || searching}
-              disabled
+              disabled={uploading || searching}
+              // disabled
             >
               {uploading ? (
                 <>
@@ -222,7 +222,7 @@ export default function Home() {
 
           {/* Preview Section */}
           {uploadedImage && (
-            <div className="mt-8 bg-gradient-to-br from-black to-indigo-950/30 border-2 border-indigo-400/50 rounded-lg p-6 max-w-full mx-auto">
+            <div className="mt-8 bg-indigo-950/20 border-2 border-indigo-400/50 rounded-lg p-6 max-w-full mx-auto">
               <h3 className="text-xl font-semibold mb-4">
                 Your Uploaded Image
               </h3>
@@ -246,7 +246,7 @@ export default function Home() {
                     {searchResults.slice(0, 3).map((result, index) => (
                       <div
                         key={index}
-                        className="bg-gradient-to-b from-black/70 to-indigo-950/20 border border-indigo-400/30 rounded-md p-4 md:p-5 flex flex-col h-full"
+                        className="border border-indigo-400/30 rounded-md p-4 md:p-5 flex flex-col h-full"
                       >
                         <p className="text-indigo-200 font-bold text-sm md:text-lg mb-2 md:mb-3 pb-2 border-b border-indigo-500/20">
                           Match #{index + 1} -{" "}
@@ -380,7 +380,7 @@ export default function Home() {
                             .map((match: any, index: number) => (
                               <div
                                 key={`prompt-${index}`}
-                                className="bg-gradient-to-b from-black/70 to-indigo-950/20 border border-indigo-400/30 rounded-md p-4"
+                                className=" border border-indigo-400/30 rounded-md p-4"
                               >
                                 <p className="text-indigo-200 font-bold text-sm md:text-base mb-2 pb-2 border-b border-indigo-500/20">
                                   Prompt Match #{index + 1} -{" "}
@@ -467,7 +467,7 @@ export default function Home() {
             {demoItems.map((demo) => (
               <Card
                 key={demo.src}
-                className="bg-gradient-to-br from-black to-indigo-950/30 border-2 border-indigo-400/50 rounded-lg overflow-hidden group hover:border-indigo-400 hover:shadow-[0_0_15px_rgba(79,70,229,0.2)] transition-all duration-300 w-full max-w-xs mx-auto"
+                className="bg-indigo-950/20 border-2 border-indigo-400/50 rounded-lg overflow-hidden group hover:border-indigo-400 hover:shadow-[0_0_15px_rgba(79,70,229,0.2)] transition-all duration-300 w-full max-w-xs mx-auto"
               >
                 <div className="w-full h-64 relative">
                   {demo.type === "image" ? (
