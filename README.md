@@ -1,69 +1,87 @@
-# Reverse Image Prompt Lookup
+# prompt.wtf - Uncover AI Image Generation Secrets
 
-This project implements a backend service that can analyze AI-generated images and predict the prompts and parameters used to generate them.
+A web application that analyzes AI-generated images to reveal the prompts, models, and parameters used to create them.
 
 ## Features
 
-- Image upload endpoint
-- CLIP-based image embedding
-- FAISS vector similarity search
-- Prompt and parameter prediction
+- Upload any AI-generated image for analysis
+- Identify potential prompts used to create the image
+- Determine generation parameters (CFG, steps, sampler, seed)
+- Get prompt recommendations for similar looks
+- Modern, responsive UI built with Next.js
+
+## Technology Stack
+
+- **Frontend**: Next.js, React, TailwindCSS
+- **Backend**: Python Flask API
+- **Image Analysis**: CLIP embeddings, FAISS vector similarity search
+- **Authentication**: Clerk for user management
 
 ## Setup
 
+- These instructions are only a brief explanation of the general setup. If you want to familiarize yourself with this codebase, the most important files are going to be build_faiss_index.py and search.py located in the backend.
+
+### Backend Setup
+
 1. Create a virtual environment:
+
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+cd backend
+conda create -n promptwtf python=3.10
+conda activate promptwtf
 ```
 
-2. Install dependencies:
+2. Cd into backend and install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 3. Download and prepare the dataset:
-- run 
+
 ```bash
+# Example for how to run download.py to download a small dataset (parts 1-5)
+python download.py -i 1 -r 5 -z -c
+
+# Build the FAISS index with downloaded images
 python build_faiss_index.py
 ```
 
-4. Create the FAISS index:
-```bash
-python train_index.py
-```
-
-5. Run the server:
-```bash
-python app.py
-```
-
-## API Usage
-
-### Upload Endpoint
+4. Run the backend server:
 
 ```bash
-POST /upload
-Content-Type: multipart/form-data
-
-Parameters:
-- image: File (required) - The image file to analyze
-
-Response:
-{
-    "prompt": "string",
-    "alternates": ["string"],
-    "confidence": float,
-    "model_guess": "string",
-    "cfg_guess": float,
-    "steps_guess": integer
-}
+python server.py
 ```
 
-## TODO
+### Frontend Setup
 
-1. Download and process the DiffusionDB dataset
-2. Train the FAISS index
-3. Implement the similarity search in the upload endpoint
-4. Add more features like model parameter prediction
-5. Add rate limiting and error handling 
+1. Navigate to the frontend directory:
+
+```bash
+cd promptwtf
+```
+
+2. Install dependencies:
+
+```bash
+bun install
+```
+
+3. Run the development server:
+
+```bash
+bun dev
+```
+
+## Usage
+
+1. Upload an AI-generated image (JPEG, PNG)
+2. The system will analyze the image and display:
+   - Top matches with similarity scores
+   - Potential prompts used to generate the image
+   - Generation parameters (model, CFG, steps, sampler, seed)
+   - Prompt recommendations for similar results
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
