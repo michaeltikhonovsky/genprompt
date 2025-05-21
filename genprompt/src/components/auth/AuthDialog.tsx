@@ -213,7 +213,7 @@ export function AuthDialog() {
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="user@prompt.wtf"
+                          placeholder="user@genprompt.app"
                           className="bg-indigo-950/60 border border-indigo-400/70 rounded-md px-3 py-2 text-indigo-200 font-mono focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
                         />
                       </FormControl>
