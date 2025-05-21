@@ -124,7 +124,7 @@ export function AuthDialog() {
       </DialogClose>
       <DialogHeader>
         <DialogTitle className="text-indigo-200 font-mono text-xl">
-          JOIN PROMPT.WTF
+          JOIN GENPROMPT
         </DialogTitle>
       </DialogHeader>
       <div className="grid gap-6 py-4">
