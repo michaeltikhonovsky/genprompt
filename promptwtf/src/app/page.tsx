@@ -171,7 +171,7 @@ export default function Home() {
       <header className="container mx-auto px-4 py-16 md:py-24">
         <div className="max-w-5xl mx-auto text-center space-y-6">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-            [prompt.wtf]
+            [genprompt]
           </h1>
           <p className="text-xl md:text-2xl text-gray-300">
             Upload any AI-generated image. We&apos;ll analyze them and attempt
@@ -198,8 +198,8 @@ export default function Home() {
               variant="outline"
               className="group font-mono rounded-md border border-indigo-400 bg-indigo-950/50 text-indigo-200 hover:bg-indigo-800/60 hover:text-white transition-all"
               onClick={handleUploadClick}
-              // disabled={uploading || searching}
-              disabled
+              disabled={uploading || searching}
+              // disabled
             >
               {uploading ? (
                 <>
@@ -540,10 +540,10 @@ export default function Home() {
 
       <footer className="container mx-auto px-4 py-8 text-center text-gray-600 text-sm border-t border-gray-900">
         <p className="flex items-center justify-center gap-2">
-          © 2025 prompt.wtf
+          © 2025 genprompt
           <span className="mx-2">•</span>
           <a
-            href="https://twitter.com/promptwtf"
+            href="https://twitter.com/genprompt"
             className="hover:text-gray-400 transition-colors"
             aria-label="Twitter"
           >
