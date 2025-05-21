@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "prompt.wtf",
+  title: "genprompt",
   description: "Uncover the secrets behind AI-generated images",
 };
 
