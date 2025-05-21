@@ -1,4 +1,4 @@
-# prompt.wtf - Uncover AI Image Generation Secrets
+# genprompt - Uncover AI Image Generation Secrets
 
 A web application that analyzes AI-generated images to reveal the prompts, models, and parameters used to create them.
 
@@ -27,8 +27,8 @@ A web application that analyzes AI-generated images to reveal the prompts, model
 
 ```bash
 cd backend
-conda create -n promptwtf python=3.10
-conda activate promptwtf
+conda create -n genprompt python=3.10
+conda activate genprompt
 ```
 
 2. Cd into backend and install dependencies:
@@ -58,7 +58,7 @@ python server.py
 1. Navigate to the frontend directory:
 
 ```bash
-cd promptwtf
+cd genprompt
 ```
 
 2. Install dependencies:
