@@ -59,7 +59,7 @@ export async function POST(req: Request) {
 
     // Get primary email
     const primaryEmail = email_addresses?.find(
-      (email) => email.id === evt.data.primary_email_address_id
+      (email: any) => email.id === evt.data.primary_email_address_id
     )?.email_address;
 
     if (id && primaryEmail) {
