@@ -81,7 +81,3 @@ bun dev
    - Potential prompts used to generate the image
    - Generation parameters (model, CFG, steps, sampler, seed)
    - Prompt recommendations for similar results
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
