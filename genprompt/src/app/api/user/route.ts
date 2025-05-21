@@ -6,10 +6,6 @@ import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
-// Skip this API route during static export
-export const dynamic = "force-static";
-export const dynamicParams = true;
-
 export async function GET(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
